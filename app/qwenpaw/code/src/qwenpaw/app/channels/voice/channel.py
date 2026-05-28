@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Voice Channel: Twilio ConversationRelay + Cloudflare Tunnel."""
+"""Voice Channel: Twilio ConversationRelay + QwenPaw."""
 from __future__ import annotations
 
 import collections
@@ -90,7 +90,7 @@ class VoiceChannel(BaseChannel):
         if self.twilio_mgr is None:
             issues.append("Twilio credentials not configured")
         if self.tunnel_mgr is None:
-            issues.append("Cloudflare tunnel not started")
+            issues.append("QwenPaw not started")
         if issues:
             return {
                 "channel": self.channel,
@@ -126,7 +126,7 @@ class VoiceChannel(BaseChannel):
             )
             return
 
-        # Start Cloudflare tunnel pointing at the app's serving port
+        # Start QwenPaw pointing at the app's serving port
         from qwenpaw.tunnel import CloudflareTunnelDriver
         from qwenpaw.config.utils import read_last_api
 
@@ -137,7 +137,7 @@ class VoiceChannel(BaseChannel):
         try:
             tunnel_info = await self.tunnel_mgr.start(local_port)
         except Exception:
-            logger.exception("Failed to start Cloudflare tunnel")
+            logger.exception("Failed to start QwenPaw")
             return
 
         # Configure Twilio webhook + status callback

@@ -70,44 +70,8 @@ fi
 cat "${PIP_LOG}" >> "${LOG_FILE}"
 rm -f "${PIP_LOG}"
 
-INSTALL_OLLAMA="${wizard_install_ollama:-true}"
-if [ "$INSTALL_OLLAMA" = "true" ]; then
-    log_msg "正在安装 Ollama 依赖..."
-    PIP_LOG=$(mktemp)
-    if ! pip3 install 'qwenpaw[ollama]' $PIP_OPTS > "${PIP_LOG}" 2>&1; then
-        cat "${PIP_LOG}" >> "${LOG_FILE}"
-        ERROR_MSG=$(tail -n 1 "${PIP_LOG}")
-        rm -f "${PIP_LOG}"
-        handle_error
-    fi
-    cat "${PIP_LOG}" >> "${LOG_FILE}"
-    rm -f "${PIP_LOG}"
-else
-    log_msg "跳过安装 Ollama 驱动"
-fi
-
 log_msg "正在初始化 QwenPaw..."
 echo "Yes" | python3 -m qwenpaw init --defaults
-
-INSTALL_PLAYWRIGHT="${wizard_install_playwright:-true}"
-if [ "$INSTALL_PLAYWRIGHT" = "true" ]; then
-    log_msg "正在安装 playwright..."
-    PIP_LOG=$(mktemp)
-    if ! pip3 install playwright $PIP_OPTS > "${PIP_LOG}" 2>&1; then
-        cat "${PIP_LOG}" >> "${LOG_FILE}"
-        ERROR_MSG=$(tail -n 1 "${PIP_LOG}")
-        rm -f "${PIP_LOG}"
-        handle_error
-    fi
-    cat "${PIP_LOG}" >> "${LOG_FILE}"
-    rm -f "${PIP_LOG}"
-
-    log_msg "正在安装 playwright chromium 浏览器 (使用 npmmirror 镜像加速)..."
-    PLAYWRIGHT_DOWNLOAD_HOST=https://registry.npmmirror.com/-/binary/playwright playwright install chromium
-    log_msg "playwright chromium 浏览器安装成功"
-else
-    log_msg "跳过安装 Playwright"
-fi
 
 chown -R "${TRIM_USERNAME}:${TRIM_GROUPNAME}" "${WORKING_DIR}"
 chown -R "${TRIM_USERNAME}:${TRIM_GROUPNAME}" "${TRIM_PKGVAR}"

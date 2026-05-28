@@ -967,7 +967,7 @@ Voice 频道通过 Twilio ConversationRelay 实现电话语音交互，支持语
 ### 前置要求
 
 1. **Twilio 账号**：从 [Twilio 官网](https://www.twilio.com/) 注册账号并获取凭证
-2. **Cloudflare Tunnel**（或其他内网穿透方案）：将本地 QwenPaw 服务暴露到公网，供 Twilio 回调使用
+2. **QwenPaw**（或其他内网穿透方案）：将本地 QwenPaw 服务暴露到公网，供 Twilio 回调使用
 
 ### 创建 Twilio 账号并获取凭证
 
@@ -980,11 +980,11 @@ Voice 频道通过 Twilio ConversationRelay 实现电话语音交互，支持语
    - 选择支持语音通话的号码
    - 记录 **Phone Number**（如 `+1234567890`）和 **Phone Number SID**
 
-### 配置 Cloudflare Tunnel
+### 配置 QwenPaw
 
 Twilio 需要通过公网回调 QwenPaw 的 Webhook 接口，因此需要将本地服务暴露到公网。
 
-1. 安装 Cloudflare Tunnel 客户端：
+1. 安装 QwenPaw 客户端：
 
 ```bash
 # macOS
@@ -1079,7 +1079,7 @@ cloudflared tunnel --url http://localhost:8088
 | `language`           | string | `"en-US"`                                    | 语言代码                           |
 | `welcome_greeting`   | string | `"Hi! This is QwenPaw. How can I help you?"` | 欢迎语（接通电话后的第一句话）     |
 
-> **注意**：Voice 频道需要持续的网络连接和内网穿透工具运行。建议在生产环境使用稳定的内网穿透方案（如 Cloudflare Tunnel、ngrok 付费版等）。
+> **注意**：Voice 频道需要持续的网络连接和内网穿透工具运行。建议在生产环境使用稳定的内网穿透方案（如 QwenPaw、ngrok 付费版等）。
 
 ---
 

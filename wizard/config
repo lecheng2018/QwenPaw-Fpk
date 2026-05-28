@@ -42,36 +42,5 @@
                 ]
             }
         ]
-    },
-    {
-        "stepTitle": "工作进程数",
-        "items": [
-            {
-                "type": "select",
-                "field": "wizard_workers",
-                "label": "工作进程数",
-                "initValue": "4",
-                "options": [
-                    {
-                        "label": "2 个进程",
-                        "value": "2"
-                    },
-                    {
-                        "label": "4 个进程",
-                        "value": "4"
-                    },
-                    {
-                        "label": "8 个进程",
-                        "value": "8"
-                    }
-                ],
-                "rules": [
-                    {
-                        "required": true,
-                        "message": "请选择工作进程数"
-                    }
-                ]
-            }
-        ]
     }
 ]

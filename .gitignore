@@ -1,2 +1,3 @@
 .DS_Store
 *.fpk
+*/node_modules

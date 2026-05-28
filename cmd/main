@@ -7,7 +7,6 @@ WORKING_DIR="${TRIM_PKGHOME}"
 VENV_DIR="${WORKING_DIR}/venv"
 
 LOG_LEVEL="${wizard_log_level:-info}"
-WORKERS="${wizard_workers:-4}"
 
 export HOME="${TRIM_PKGETC}"
 export QWENPAW_WORKING_DIR="${TRIM_DATA_SHARE_PATHS%%:*}/.qwenpaw"
@@ -15,7 +14,7 @@ export QWENPAAW_LOG_LEVEL="${LOG_LEVEL}"
 export QWENPAW_AUTH_ENABLED=true
 export PATH="/var/apps/nodejs_v22/target/bin:$PATH"
 
-CMD="source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port ${TRIM_SERVICE_PORT:-19091} --workers ${WORKERS}"
+CMD="source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port ${TRIM_SERVICE_PORT:-19091}"
 
 log_msg() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> ${LOG_FILE}

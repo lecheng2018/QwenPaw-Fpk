@@ -21,7 +21,7 @@
         "items": [
             {
                 "type": "tips",
-                "helpText": "1. 如果选择安装 Playwright，<b>进度条可能会在 55% 左右停留较长时间</b>，请耐心等待。"
+                "helpText": "1. 安装完成后，可在控制台页面中按需安装 <b>Ollama 驱动</b> 和 <b>Playwright</b> 等可选组件。"
             },
             {
                 "type": "tips",
@@ -73,47 +73,6 @@
         ]
     },
     {
-        "stepTitle": "可选组件",
-        "items": [
-            {
-                "type": "tips",
-                "helpText": "选择需要安装的可选组件。如果您不需要使用本地 Ollama 模型或浏览器自动化功能，可以跳过安装以节省时间。"
-            },
-            {
-                "type": "radio",
-                "field": "wizard_install_ollama",
-                "label": "安装 Ollama 驱动",
-                "initValue": "false",
-                "options": [
-                    {
-                        "label": "不安装",
-                        "value": "false"
-                    },
-                    {
-                        "label": "安装 (需先安装飞牛应用商店中的 Ollama 应用)",
-                        "value": "true"
-                    }
-                ]
-            },
-            {
-                "type": "radio",
-                "field": "wizard_install_playwright",
-                "label": "安装 Playwright",
-                "initValue": "false",
-                "options": [
-                    {
-                        "label": "不安装",
-                        "value": "false"
-                    },
-                    {
-                        "label": "安装 (用于浏览器自动化，安装时间较长)",
-                        "value": "true"
-                    }
-                ]
-            }
-        ]
-    },
-    {
         "stepTitle": "日志级别",
         "items": [
             {
@@ -147,41 +106,6 @@
                     {
                         "required": true,
                         "message": "请选择日志级别"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "stepTitle": "工作进程数",
-        "items": [
-            {
-                "type": "tips",
-                "helpText": "设置 QwenPaw 的工作进程数，建议根据 CPU 核心数设置。"
-            },
-            {
-                "type": "select",
-                "field": "wizard_workers",
-                "label": "工作进程数",
-                "initValue": "4",
-                "options": [
-                    {
-                        "label": "2 个进程",
-                        "value": "2"
-                    },
-                    {
-                        "label": "4 个进程 (推荐)",
-                        "value": "4"
-                    },
-                    {
-                        "label": "8 个进程",
-                        "value": "8"
-                    }
-                ],
-                "rules": [
-                    {
-                        "required": true,
-                        "message": "请选择工作进程数"
                     }
                 ]
             }

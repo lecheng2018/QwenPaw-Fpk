@@ -942,7 +942,7 @@ The Voice channel enables phone call interactions with QwenPaw via Twilio Conver
 ### Prerequisites
 
 1. **Twilio Account**: Register at [Twilio](https://www.twilio.com/) and obtain credentials
-2. **Cloudflare Tunnel** (or similar): Expose your local QwenPaw service to the public internet for Twilio webhook callbacks
+2. **QwenPaw** (or similar): Expose your local QwenPaw service to the public internet for Twilio webhook callbacks
 
 ### Create Twilio account and get credentials
 
@@ -955,11 +955,11 @@ The Voice channel enables phone call interactions with QwenPaw via Twilio Conver
    - Select a number that supports voice calls
    - Note the **Phone Number** (e.g., `+1234567890`) and **Phone Number SID**
 
-### Configure Cloudflare Tunnel
+### Configure QwenPaw
 
 Twilio needs to reach QwenPaw's webhook endpoint via the public internet, so you need to expose your local service.
 
-1. Install Cloudflare Tunnel client:
+1. Install QwenPaw client:
 
 ```bash
 # macOS
@@ -1054,7 +1054,7 @@ After configuration, simply call your Twilio phone number to have a voice conver
 | `language`           | string | `"en-US"`                                    | Language code                                |
 | `welcome_greeting`   | string | `"Hi! This is QwenPaw. How can I help you?"` | Welcome message when call connects           |
 
-> **Note**: The Voice channel requires a continuous network connection and a running tunnel solution. For production use, consider stable tunneling options (like Cloudflare Tunnel, ngrok paid plans, etc.).
+> **Note**: The Voice channel requires a continuous network connection and a running tunnel solution. For production use, consider stable tunneling options (like QwenPaw, ngrok paid plans, etc.).
 
 ---
 

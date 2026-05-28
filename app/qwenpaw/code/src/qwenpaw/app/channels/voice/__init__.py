@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Voice channel: Twilio ConversationRelay + Cloudflare Tunnel."""
+"""Voice channel: Twilio ConversationRelay + QwenPaw."""
 
 from .channel import VoiceChannel  # noqa: F401
 
