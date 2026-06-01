@@ -110,7 +110,13 @@ get_status() {
 
     echo "Content-Type: application/json"
     echo ""
-    echo "{\"success\":true,\"running\":${running},\"pid\":\"${pid}\",\"startAt\":${start_at},\"version\":\"${version:-未知}\"}"
+
+    local auth_enabled=false
+    if [ -f "${AUTH_FILE}" ]; then
+        auth_enabled=true
+    fi
+
+    echo "{\"success\":true,\"running\":${running},\"pid\":\"${pid}\",\"startAt\":${start_at},\"version\":\"${version:-未知}\",\"authEnabled\":${auth_enabled}}"
 }
 
 status() {
@@ -137,7 +143,7 @@ start_service() {
         fi
     fi
 
-    local cmd="source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port 19091"
+    local cmd="export HOME=/var/apps/com.dustinky.qwenpaw/home && export QWENPAW_WORKING_DIR=/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw/.qwenpaw && export QWENPAW_AUTH_ENABLED=true && export PATH=/var/apps/nodejs_v24/target/bin:\$PATH && source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port 19091"
     nohup bash -c "${cmd}" >> "${LOG_FILE}" 2>&1 &
     echo $! > "${PID_FILE}"
 
@@ -191,6 +197,47 @@ stop_service() {
         echo "Content-Type: application/json"
         echo ""
         echo "{\"success\":true,\"message\":\"QwenPaw 未在运行\"}"
+    fi
+}
+
+restart_service() {
+    if [ "$REQUEST_METHOD" != "POST" ]; then
+        echo "Content-Type: application/json"
+        echo ""
+        echo "{\"success\":false,\"message\":\"仅支持 POST 请求\"}"
+        exit 0
+    fi
+
+    if [ -f "${PID_FILE}" ]; then
+        local pid=$(head -n 1 "${PID_FILE}" | tr -d '[:space:]')
+        if check_process "${pid}"; then
+            kill -TERM "${pid}"
+            local count=0
+            while check_process "${pid}" && [ $count -lt 10 ]; do
+                sleep 1
+                count=$((count + 1))
+            done
+            if check_process "${pid}"; then
+                kill -KILL "${pid}"
+                sleep 1
+            fi
+        fi
+        rm -f "${PID_FILE}"
+    fi
+
+    local cmd="export HOME=/var/apps/com.dustinky.qwenpaw/home && export QWENPAW_WORKING_DIR=/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw/.qwenpaw && export QWENPAW_AUTH_ENABLED=true && export PATH=/var/apps/nodejs_v24/target/bin:\$PATH && source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port 19091"
+    nohup bash -c "${cmd}" >> "${LOG_FILE}" 2>&1 &
+    echo $! > "${PID_FILE}"
+
+    sleep 2
+    if check_process "$(cat "${PID_FILE}" 2>/dev/null)"; then
+        echo "Content-Type: application/json"
+        echo ""
+        echo "{\"success\":true,\"message\":\"QwenPaw 重启成功\"}"
+    else
+        echo "Content-Type: application/json"
+        echo ""
+        echo "{\"success\":false,\"message\":\"QwenPaw 重启失败，请查看日志\"}"
     fi
 }
 
@@ -260,6 +307,30 @@ upgrade_service() {
         if [ \$rc -eq 0 ]; then
             echo '=== 升级成功 ===' >> ${UPGRADE_LOG_FILE}
             rm -f ${STATUS_CACHE_FILE}
+            echo '正在重启 QwenPaw...' >> ${UPGRADE_LOG_FILE}
+            if [ -f ${PID_FILE} ]; then
+                old_pid=\$(head -n 1 ${PID_FILE} | tr -d '[:space:]')
+                if kill -0 \${old_pid} 2>/dev/null; then
+                    kill -TERM \${old_pid}
+                    count=0
+                    while kill -0 \${old_pid} 2>/dev/null && [ \$count -lt 10 ]; do
+                        sleep 1
+                        count=\$((count + 1))
+                    done
+                    if kill -0 \${old_pid} 2>/dev/null; then
+                        kill -KILL \${old_pid}
+                    fi
+                fi
+                rm -f ${PID_FILE}
+            fi
+            export HOME=/var/apps/com.dustinky.qwenpaw/home
+            export QWENPAW_WORKING_DIR=/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw/.qwenpaw
+            export QWENPAW_AUTH_ENABLED=true
+            export PATH=/var/apps/nodejs_v24/target/bin:\$PATH
+            source ${VENV_DIR}/bin/activate
+            python3 -m qwenpaw app --host 0.0.0.0 --port 19091 >> ${LOG_FILE} 2>&1 &
+            echo \$! > ${PID_FILE}
+            echo 'QwenPaw 已重启' >> ${UPGRADE_LOG_FILE}
         else
             echo '=== 升级失败 (exit code: '\$rc') ===' >> ${UPGRADE_LOG_FILE}
         fi
@@ -337,6 +408,51 @@ reset_auth() {
     fi
 }
 
+backup_download() {
+    local working_base="/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw"
+    local working_dir="${working_base}/.qwenpaw"
+    local secret_dir="${working_base}/.qwenpaw.secret"
+    local backup_name="qwenpaw-backup-$(date +%Y%m%d-%H%M%S).tar.gz"
+    local tmp_file="/tmp/${backup_name}"
+
+    if [ ! -d "${working_dir}" ]; then
+        echo "Content-Type: application/json"
+        echo ""
+        echo "{\"success\":false,\"message\":\"工作目录不存在，无法备份\"}"
+        exit 0
+    fi
+
+    if [ ! -d "${secret_dir}" ]; then
+        echo "Content-Type: application/json"
+        echo ""
+        echo "{\"success\":false,\"message\":\"密钥目录不存在，无法备份\"}"
+        exit 0
+    fi
+
+    if ! tar -czf "${tmp_file}" -C "${working_base}" ".qwenpaw" ".qwenpaw.secret" 2>/dev/null; then
+        echo "Content-Type: application/json"
+        echo ""
+        echo "{\"success\":false,\"message\":\"打包失败，请检查磁盘空间和权限\"}"
+        rm -f "${tmp_file}"
+        exit 0
+    fi
+
+    if [ ! -f "${tmp_file}" ] || [ ! -s "${tmp_file}" ]; then
+        echo "Content-Type: application/json"
+        echo ""
+        echo "{\"success\":false,\"message\":\"打包失败，文件为空\"}"
+        rm -f "${tmp_file}"
+        exit 0
+    fi
+
+    echo "Content-Type: application/gzip"
+    echo "Content-Disposition: attachment; filename=\"${backup_name}\""
+    echo ""
+
+    cat "${tmp_file}"
+    rm -f "${tmp_file}"
+}
+
 action=""
 
 if [ -n "$QUERY_STRING" ]; then
@@ -346,6 +462,8 @@ if [ -n "$QUERY_STRING" ]; then
         action="start"
     elif echo "$QUERY_STRING" | grep -q "action=stop"; then
         action="stop"
+    elif echo "$QUERY_STRING" | grep -q "action=restart"; then
+        action="restart"
     elif echo "$QUERY_STRING" | grep -q "action=upgrade_status"; then
         action="upgrade_status"
     elif echo "$QUERY_STRING" | grep -q "action=upgrade_logs"; then
@@ -358,6 +476,8 @@ if [ -n "$QUERY_STRING" ]; then
         action="clear_logs"
     elif echo "$QUERY_STRING" | grep -q "action=reset_auth"; then
         action="reset_auth"
+    elif echo "$QUERY_STRING" | grep -q "action=backup_download"; then
+        action="backup_download"
     fi
 fi
 
@@ -368,6 +488,8 @@ if [ -z "$action" ] && [ -n "$REQUEST_URI" ]; then
         action="start"
     elif echo "$REQUEST_URI" | grep -q "action=stop"; then
         action="stop"
+    elif echo "$REQUEST_URI" | grep -q "action=restart"; then
+        action="restart"
     elif echo "$REQUEST_URI" | grep -q "action=upgrade_status"; then
         action="upgrade_status"
     elif echo "$REQUEST_URI" | grep -q "action=upgrade_logs"; then
@@ -380,6 +502,8 @@ if [ -z "$action" ] && [ -n "$REQUEST_URI" ]; then
         action="clear_logs"
     elif echo "$REQUEST_URI" | grep -q "action=reset_auth"; then
         action="reset_auth"
+    elif echo "$REQUEST_URI" | grep -q "action=backup_download"; then
+        action="backup_download"
     fi
 fi
 
@@ -392,6 +516,9 @@ case "$action" in
         ;;
     stop)
         stop_service
+        ;;
+    restart)
+        restart_service
         ;;
     upgrade)
         upgrade_service
@@ -410,6 +537,9 @@ case "$action" in
         ;;
     reset_auth)
         reset_auth
+        ;;
+    backup_download)
+        backup_download
         ;;
     *)
         echo "Content-Type: application/json"

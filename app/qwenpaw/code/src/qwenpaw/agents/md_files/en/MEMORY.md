@@ -23,7 +23,7 @@ After activation, use `python3` or `pip3` to run commands. The virtual environme
 **Important:** All Node.js commands run in a virtual environment. Activate the virtual environment with the following command:
 
 ```bash
-export PATH=/var/apps/nodejs_v22/target/bin:$PATH
+export PATH=/var/apps/nodejs_v24/target/bin:$PATH
 ```
 
 After activation, use `node` or `npm` to run commands. The virtual environment is already set up with all required dependencies.

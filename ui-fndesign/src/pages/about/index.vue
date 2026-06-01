@@ -140,7 +140,7 @@ onMounted(() => {
 <template>
   <div class="mx-auto space-y-8">
     <div class="text-center space-y-4">
-      <div class="w-20 h-20 mx-auto">
+      <div class="w-28 h-28 mx-auto">
         <img
           src="/favicon.png"
           alt="Logo"

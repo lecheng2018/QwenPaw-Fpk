@@ -23,7 +23,7 @@ source /var/apps/com.dustinky.qwenpaw/home/venv/bin/activate
 **重要：** 所有 Node.js 命令都在虚拟环境中运行。使用前必须先激活：
 
 ```bash
-export PATH=/var/apps/nodejs_v22/target/bin:$PATH
+export PATH=/var/apps/nodejs_v24/target/bin:$PATH
 ```
 
 激活后，直接使用 `node` 或 `npm` 即可。虚拟环境已配置好所有必需的依赖。

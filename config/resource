@@ -1,16 +1,16 @@
 {
-    "data-share": {
-        "shares": [
+    "data-share":
+    {
+        "shares":
+        [
             {
                 "name": "com.dustinky.qwenpaw",
-                "permission": {
-                    "rw": ["com.dustinky.qwenpaw"]
-                }
-            },
-            {
-                "name": "com.dustinky.qwenpaw.secret",
-                "permission": {
-                    "rw": ["com.dustinky.qwenpaw"]
+                "permission":
+                {
+                    "rw":
+                    [
+                        "com.dustinky.qwenpaw"
+                    ]
                 }
             }
         ]

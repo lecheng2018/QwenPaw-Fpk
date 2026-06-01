@@ -1,7 +1,7 @@
 appname                    = com.dustinky.qwenpaw
-version                    = 1.1.9
+version                    = 1.1.10
 display_name               = QwenPaw
-desc                       = `<p>QwenPaw 是一款个人助理型产品，部署在你自己的环境中。核心功能：多通道对话（钉钉、飞书、Discord、Telegram 等），多智能体协作（独立配置、记忆和技能，互相通信完成复杂任务），定时执行任务，能力由 Skills 决定且可无限扩展，支持本地运行大模型完全离线工作，数据全在本地不依赖第三方托管，多层安全防护机制。使用 Ollama 需先在飞牛应用商店安装 Ollama 应用，连接时 API Key 不可为空。更多问题可加入 QQ 群 <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=eh3ZjF03sS5h3xycHBkJxllqsbpz0QJTTRMVjySNNDp4W3jtafZtnrRe9t%2BrHfmZ&busi_data=eyJncm91cENvZGUiOiIxMDkxMzQ4MTkyIiwidG9rZW4iOiJUM043MmdJbytIWTlndCtkaWgyV2pUQTgyeXh1YzVMR21SZGxEUjJuVHRjVW1WYTE3d3B1ODI4c28rSjdUQy9LIiwidWluIjoiODE1MjIzNTgifQ%3D%3D&data=zc5hDTqOp2xm6e7x-U_2Yl0KARi6A5uyvzlnyU6cfjAFK7qn4S8Zz5D9kvvSd9BlUXV7gKXlmPyfVQV2PA_IiQ&svctype=4&tempid=h5_group_info" target="_blank">1091348192</a> 进行交流。</p>`
+desc                       = `<p>QwenPaw 是一款个人助理型产品（国产小龙虾），部署在你自己的环境中。</p><h3>核心功能</h3><p>多通道对话（微信、QQ、钉钉、飞书、Discord、Telegram 等），多智能体协作（独立配置、记忆和技能，互相通信完成复杂任务），定时执行任务，能力由 Skills 决定且可无限扩展，支持本地运行大模型完全离线工作，数据全在本地不依赖第三方托管，多层安全防护机制。使用 Ollama 需先在飞牛应用商店安装 Ollama 应用，连接时 API Key 不可为空。更多问题可加入 QQ 群 <a href="https://qm.qq.com/q/b7M0Myqihc" target="_blank">1091348192</a> 进行交流。</p>`
 platform                   = all
 source                     = thirdparty
 maintainer                 = AgentScope团队
@@ -13,6 +13,6 @@ os_min_version             = 0.9.21
 desktop_applaunchname      = com.dustinky.qwenpaw
 checkport                  = false
 service_port               = 19091
-disable_authorization_path = true
-install_dep_apps           = python312:nodejs_v22
-changelog                  = '新增单独的QwenPaw飞牛控制台用于自动升级版本、查看日志等操作，新增Tauri桌面应用、Coding模式Web IDE、技能市场、QwenPaw Pet桌面宠物、CloudPaw阿里云部署插件、/make-skill命令、统一访问控制、浏览器崩溃恢复、自定义HTTP Headers、按模型配置Token限制；优化控制台导航、插件管理界面；修复微信消息去重、钉钉中文文件名、QQ频道工具审批、SSE连接泄漏等多项bug'
+disable_authorization_path = false
+install_dep_apps           = python312:nodejs_v24
+changelog                  = '优化控制台功能和UI，将Node.js依赖版本升级到v24；新增 Agent 子代理(spawn_subagent)功能；新增打开目录标签页，可直接引用本地项目；新增腾讯元宝 Bot 渠道；新增飞书消息话题回复；新增 OpenRouter 应用归因；新增动态上传限制配置；修复桌面端内置 CLI、Windows Git 控制台等问题；修复控制台聊天输入、代码展示等多项问题；修复 OneBot WebSocket 断连重启；修复技能更新稳定性；宠物自动安装依赖等多项优化'

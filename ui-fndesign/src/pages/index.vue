@@ -6,6 +6,7 @@ interface QwenPawInfo {
   startAt?: number | null
   running?: boolean
   version?: string
+  authEnabled?: boolean
 }
 const qwenpawInfo = ref<QwenPawInfo | null>(null)
 const running = ref(false)
@@ -37,6 +38,8 @@ const statusDescription = computed(() => running.value ? 'QwenPaw 服务正在�
 const statusIcon = computed(() => running.value ? 'i-lucide-activity' : 'i-lucide-stop-circle')
 const statusColor = computed(() => running.value ? 'success' : 'neutral')
 
+const authEnabled = computed(() => qwenpawInfo.value?.authEnabled ?? false)
+
 const runtimeText = computed(() => {
   const startAt = qwenpawInfo.value?.startAt
   if (!running.value || typeof startAt !== 'number' || !Number.isFinite(startAt) || startAt <= 0) {
@@ -52,49 +55,36 @@ const runtimeText = computed(() => {
   return days > 0 ? `${days}天 ${time}` : time
 })
 
-const isStarting = ref(false)
-const isStopping = ref(false)
+const qwenpawUrl = computed(() => {
+  if (typeof window !== 'undefined') {
+    return `http://${window.location.hostname}:19091`
+  }
+  return 'http://localhost:19091'
+})
+
+const isRestarting = ref(false)
 const isUpgrading = ref(false)
 const isResetting = ref(false)
 const showResetConfirm = ref(false)
 
-const startService = async () => {
-  isStarting.value = true
+const restartService = async () => {
+  isRestarting.value = true
   try {
-    const res = await fetch('/cgi/ThirdParty/com.dustinky.qwenpaw/api.cgi?action=start', { method: 'POST' })
+    const res = await fetch('/cgi/ThirdParty/com.dustinky.qwenpaw/api.cgi?action=restart', { method: 'POST' })
     const result = await res.json()
     if (result.success) {
-      showNotification('QwenPaw 启动成功', 'success')
+      showNotification('QwenPaw 重启成功', 'success')
       refreshStatus()
     } else {
-      showNotification('启动失败: ' + (result.message || '未知错误'), 'error')
+      showNotification('重启失败: ' + (result.message || '未知错误'), 'error')
     }
   } catch (e: unknown) {
     const err = e as Error
-    showNotification('启动出错: ' + (err?.message ?? String(e)), 'error')
+    showNotification('重启出错: ' + (err?.message ?? String(e)), 'error')
   } finally {
-    isStarting.value = false
+    isRestarting.value = false
   }
 }
-
-const stopService = async () => {
-    isStopping.value = true
-    try {
-      const res = await fetch('/cgi/ThirdParty/com.dustinky.qwenpaw/api.cgi?action=stop', { method: 'POST' })
-      const result = await res.json()
-      if (result.success) {
-        showNotification('QwenPaw 已停止', 'success')
-        refreshStatus()
-      } else {
-        showNotification('停止失败: ' + (result.message || '未知错误'), 'error')
-      }
-    } catch (e: unknown) {
-      const err = e as Error
-      showNotification('停止出错: ' + (err?.message ?? String(e)), 'error')
-    } finally {
-      isStopping.value = false
-    }
-  }
 
 const resetAuth = async () => {
     isResetting.value = true
@@ -121,6 +111,8 @@ let upgradePollTimer: number | null = null
 const showUpgradeOptions = ref(false)
 const selectedMirror = ref('tsinghua')
 const showDisclaimer = ref(false)
+const showBackupPrompt = ref(false)
+const isBackingUp = ref(false)
 
 const mirrorOptions = [
   { label: 'PyPI 官方源', value: 'official' },
@@ -203,6 +195,43 @@ const confirmUpgrade = () => {
 
 const confirmDisclaimer = () => {
   showDisclaimer.value = false
+  showBackupPrompt.value = true
+}
+
+const backupAndProceed = async () => {
+  isBackingUp.value = true
+  try {
+    const res = await fetch('/cgi/ThirdParty/com.dustinky.qwenpaw/api.cgi?action=backup_download')
+    const contentType = res.headers.get('content-type') || ''
+    if (contentType.includes('application/json')) {
+      const result = await res.json()
+      showNotification(result.message || '备份失败', 'error')
+      return
+    }
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const disposition = res.headers.get('content-disposition') || ''
+    const filenameMatch = disposition.match(/filename="?(.+?)"?$/)
+    a.download = filenameMatch?.[1] || 'qwenpaw-backup.tar.gz'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    showNotification('数据备份下载成功', 'success')
+    showBackupPrompt.value = false
+    showUpgradeOptions.value = true
+  } catch (e: unknown) {
+    const err = e as Error
+    showNotification('备份下载出错: ' + (err?.message ?? String(e)), 'error')
+  } finally {
+    isBackingUp.value = false
+  }
+}
+
+const skipBackup = () => {
+  showBackupPrompt.value = false
   showUpgradeOptions.value = true
 }
 
@@ -254,17 +283,6 @@ onUnmounted(() => {
         <p class="text-[var(--ui-text-muted)] mt-2">
           管理 QwenPaw 服务的运行状态与版本升级
         </p>
-      </div>
-      <div class="flex gap-2 w-full md:w-auto">
-        <UButton
-          to="/logs"
-          variant="outline"
-          color="neutral"
-          icon="i-lucide-file-text"
-          class="flex-1 md:flex-none py-3 md:py-2"
-        >
-          查看日志
-        </UButton>
       </div>
     </div>
 
@@ -318,51 +336,16 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-rotate-cw"
-            @click="refreshStatus"
-          >
-            刷新
-          </UButton>
-          <UButton
-            v-if="running"
-            color="error"
-            variant="soft"
-            icon="i-lucide-power-off"
-            :loading="isStopping"
-            @click="stopService"
-          >
-            停止服务
-          </UButton>
-          <UButton
-            v-else
             color="primary"
             variant="solid"
-            icon="i-lucide-play"
-            :loading="isStarting"
-            @click="startService"
+            icon="i-lucide-rotate-cw"
+            size="lg"
+            :loading="isRestarting"
+            @click="restartService"
           >
-            启动服务
-          </UButton>
-          <UButton
-            color="success"
-            variant="soft"
-            icon="i-lucide-arrow-up-circle"
-            :loading="isUpgrading"
-            @click="showDisclaimer = true"
-          >
-            升级 QwenPaw
-          </UButton>
-          <UButton
-            color="warning"
-            variant="ghost"
-            icon="i-lucide-key-round"
-            @click="showResetConfirm = true"
-          >
-            忘记密码
+            重启服务
           </UButton>
         </div>
       </div>
@@ -396,6 +379,165 @@ onUnmounted(() => {
         </div>
       </div>
     </UCard>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <UCard
+        class="bg-[var(--ui-bg-card)] shadow-sm"
+        :ui="{ root: 'ring-0 divide-y-0', body: '!p-0 !px-6 !pb-6' }"
+      >
+        <template #header>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-zap" class="w-5 h-5 text-primary" />
+            <span class="font-semibold text-[var(--ui-text)]">快速操作</span>
+          </div>
+        </template>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between p-3 rounded-lg bg-[var(--ui-bg-elevated)]/50">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-success/10 flex items-center justify-center">
+                <UIcon name="i-lucide-arrow-up-circle" class="w-5 h-5 text-success" />
+              </div>
+              <div>
+                <div class="text-sm font-medium text-[var(--ui-text)]">升级 QwenPaw</div>
+                <div class="text-xs text-[var(--ui-text-muted)]">更新到最新版本</div>
+              </div>
+            </div>
+            <UButton
+              color="success"
+              variant="outline"
+              size="xs"
+              icon="i-lucide-arrow-up-circle"
+              :loading="isUpgrading"
+              @click="showDisclaimer = true"
+            >
+              升级
+            </UButton>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-lg bg-[var(--ui-bg-elevated)]/50">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                <UIcon name="i-lucide-globe" class="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div class="text-sm font-medium text-[var(--ui-text)]">打开 QwenPaw</div>
+                <div class="text-xs text-[var(--ui-text-muted)]">访问 QwenPaw Web 界面</div>
+              </div>
+            </div>
+            <UButton
+              color="primary"
+              variant="outline"
+              size="xs"
+              icon="i-lucide-external-link"
+              :to="qwenpawUrl"
+              target="_blank"
+              :disabled="!running"
+            >
+              打开
+            </UButton>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-lg bg-[var(--ui-bg-elevated)]/50">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-info/10 flex items-center justify-center">
+                <UIcon name="i-lucide-file-text" class="w-5 h-5 text-info" />
+              </div>
+              <div>
+                <div class="text-sm font-medium text-[var(--ui-text)]">查看日志</div>
+                <div class="text-xs text-[var(--ui-text-muted)]">查看服务运行日志</div>
+              </div>
+            </div>
+            <UButton
+              color="neutral"
+              variant="outline"
+              size="xs"
+              icon="i-lucide-arrow-right"
+              to="/logs"
+            >
+              查看
+            </UButton>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-lg bg-[var(--ui-bg-elevated)]/50">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-warning/10 flex items-center justify-center">
+                <UIcon name="i-lucide-key-round" class="w-5 h-5 text-warning" />
+              </div>
+              <div>
+                <div class="text-sm font-medium text-[var(--ui-text)]">重置密码</div>
+                <div class="text-xs text-[var(--ui-text-muted)]">重新设置账号密码</div>
+              </div>
+            </div>
+            <UButton
+              color="warning"
+              variant="outline"
+              size="xs"
+              icon="i-lucide-rotate-ccw"
+              @click="showResetConfirm = true"
+            >
+              重置
+            </UButton>
+          </div>
+        </div>
+      </UCard>
+
+      <UCard
+        class="bg-[var(--ui-bg-card)] shadow-sm"
+        :ui="{ root: 'ring-0 divide-y-0', body: '!p-0 !px-6 !pb-6' }"
+      >
+        <template #header>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-server" class="w-5 h-5 text-info" />
+            <span class="font-semibold text-[var(--ui-text)]">服务信息</span>
+          </div>
+        </template>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-[var(--ui-bg-elevated)]/50">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <UIcon name="i-lucide-radio" class="w-5 h-5 text-emerald-500" />
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-[var(--ui-text-muted)]">服务端口</div>
+              <div class="text-sm font-mono font-medium text-[var(--ui-text)]">19091</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-[var(--ui-bg-elevated)]/50">
+            <div class="w-9 h-9 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
+              <UIcon name="i-lucide-folder" class="w-5 h-5 text-violet-500" />
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-[var(--ui-text-muted)]">工作目录</div>
+              <div class="text-sm font-mono font-medium text-[var(--ui-text)] truncate">
+                应用文件/com.dustinky.qwenpaw
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-[var(--ui-bg-elevated)]/50">
+            <div class="w-9 h-9 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+              <UIcon name="i-lucide-shield" class="w-5 h-5 text-orange-500" />
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-[var(--ui-text-muted)]">认证状态</div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-[var(--ui-text)]">{{ authEnabled ? '已启用' : '未启用' }}</span>
+                <span
+                  class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
+                  :class="authEnabled ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-500/10 text-slate-500'"
+                >
+                  {{ authEnabled ? '安全' : '未认证' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-[var(--ui-bg-elevated)]/50">
+            <div class="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+              <UIcon name="i-lucide-package" class="w-5 h-5 text-blue-500" />
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-[var(--ui-text-muted)]">当前版本</div>
+              <div class="text-sm font-mono font-medium text-[var(--ui-text)]">{{ version || '-' }}</div>
+            </div>
+          </div>
+        </div>
+      </UCard>
+    </div>
 
     <UModal
       v-model:open="showDisclaimer"
@@ -443,6 +585,59 @@ onUnmounted(() => {
             @click="confirmDisclaimer"
           >
             我已知晓，继续
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+
+    <UModal
+      v-model:open="showBackupPrompt"
+      :dismissible="true"
+      :ui="{ content: 'w-full md:w-auto md:max-w-lg' }"
+    >
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon
+            name="i-lucide-hard-drive"
+            class="w-5 h-5 text-info"
+          />
+          <div class="font-semibold text-[var(--ui-text)]">
+            备份数据
+          </div>
+        </div>
+      </template>
+
+      <template #body>
+        <div class="space-y-3 text-sm text-[var(--ui-text-muted)]">
+          <p>升级前建议备份您的数据，以防止升级过程中出现意外导致数据丢失。</p>
+          <p>备份内容包括：</p>
+          <ul class="list-disc list-inside space-y-1 ml-1">
+            <li>工作目录中的配置文件</li>
+            <li>Agent 相关数据</li>
+            <li>技能池数据</li>
+          </ul>
+          <p class="font-medium text-[var(--ui-text)]">
+            是否现在备份数据？
+          </p>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex justify-end gap-2 w-full">
+          <UButton
+            color="neutral"
+            variant="outline"
+            @click="skipBackup"
+          >
+            跳过备份
+          </UButton>
+          <UButton
+            color="info"
+            icon="i-lucide-download"
+            :loading="isBackingUp"
+            @click="backupAndProceed"
+          >
+            备份并下载
           </UButton>
         </div>
       </template>

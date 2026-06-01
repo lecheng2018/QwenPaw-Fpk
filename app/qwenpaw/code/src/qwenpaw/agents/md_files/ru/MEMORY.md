@@ -23,11 +23,10 @@ source /var/apps/com.dustinky.qwenpaw/home/venv/bin/activate
 **Важно:** Все команды Node.js выполняются в виртуальной средружке. Активируйте виртуаль средружку с помощью команды:
 
 ```bash
-export PATH=/var/apps/nodejs_v22/target/bin:$PATH
+export PATH=/var/apps/nodejs_v24/target/bin:$PATH
 ```
 
 После активации, используйте `node` или `npm` для выполнения команд. Виртуальная средружка уже настроена для всех необходимых зависимостей.
-
 
 ### Что здесь записывать
 

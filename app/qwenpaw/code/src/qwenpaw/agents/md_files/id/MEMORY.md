@@ -23,7 +23,7 @@ Aktifasi setelah itu, gunakan `python3` atau `pip3` untuk menjalankan perintah. 
 **Penting:** Semua perah perintah Node.js dijalankan di dalam lingkungan virtual. Gunakan perintah berikut untuk mengaktifkan lingkungan virtual:
 
 ```bash
-export PATH=/var/apps/nodejs_v22/target/bin:$PATH
+export PATH=/var/apps/nodejs_v24/target/bin:$PATH
 ```
 
 Aktifasi setelah itu, gunakan `node` atau `npm` untuk menjalankan perintah. Lingkungan virtual sudah teratur untuk semua dependensi yang diperlukan.
