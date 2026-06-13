@@ -48,6 +48,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/tunnel/': RouteRecordInfo<
+      '/tunnel/',
+      '/tunnel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -76,6 +83,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/logs/index.vue': {
       routes:
         | '/logs/'
+      views:
+        | never
+    }
+    'src/pages/tunnel/index.vue': {
+      routes:
+        | '/tunnel/'
       views:
         | never
     }

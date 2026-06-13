@@ -352,14 +352,14 @@ onMounted(() => {
         <UFormField label="本地服务地址" required>
           <UInput
             v-model="service"
-            placeholder="http://localhost:19091"
+            :placeholder="getDefaultService()"
             class="w-full"
           />
           <p class="text-xs text-[var(--ui-text-muted)] mt-1">
             QwenPaw 服务的本地访问地址
           </p>
           <div
-            v-if="service.value.toLowerCase().startsWith('https://')"
+            v-if="service.toLowerCase().startsWith('https://')"
             class="mt-2 p-2 rounded-lg bg-red-50 dark:bg-red-500/10 text-xs text-red-600 dark:text-red-400"
           >
             <UIcon name="i-lucide-alert-circle" class="w-3 h-3 inline-block mr-1" />
