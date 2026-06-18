@@ -143,7 +143,7 @@ start_service() {
         fi
     fi
 
-    local cmd="export HOME=/var/apps/com.dustinky.qwenpaw/home && export QWENPAW_WORKING_DIR=/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw/.qwenpaw && export QWENPAW_AUTH_ENABLED=true && export PATH=/var/apps/nodejs_v24/target/bin:\$PATH && source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port 19091"
+    local cmd="export HOME=/var/apps/com.dustinky.qwenpaw/home && export QWENPAW_WORKING_DIR=/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw/.qwenpaw && export QWENPAW_AUTH_ENABLED=true && export QWENPAW_LOG_LEVEL=info && export PATH=/var/apps/nodejs_v24/target/bin:\$PATH && source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port 19091"
     nohup bash -c "${cmd}" >> "${LOG_FILE}" 2>&1 &
     echo $! > "${PID_FILE}"
 
@@ -225,7 +225,7 @@ restart_service() {
         rm -f "${PID_FILE}"
     fi
 
-    local cmd="export HOME=/var/apps/com.dustinky.qwenpaw/home && export QWENPAW_WORKING_DIR=/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw/.qwenpaw && export QWENPAW_AUTH_ENABLED=true && export PATH=/var/apps/nodejs_v24/target/bin:\$PATH && source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port 19091"
+    local cmd="export HOME=/var/apps/com.dustinky.qwenpaw/home && export QWENPAW_WORKING_DIR=/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw/.qwenpaw && export QWENPAW_AUTH_ENABLED=true && export QWENPAW_LOG_LEVEL=info && export PATH=/var/apps/nodejs_v24/target/bin:\$PATH && source ${VENV_DIR}/bin/activate && python3 -m qwenpaw app --host 0.0.0.0 --port 19091"
     nohup bash -c "${cmd}" >> "${LOG_FILE}" 2>&1 &
     echo $! > "${PID_FILE}"
 
@@ -326,6 +326,7 @@ upgrade_service() {
             export HOME=/var/apps/com.dustinky.qwenpaw/home
             export QWENPAW_WORKING_DIR=/var/apps/com.dustinky.qwenpaw/shares/com.dustinky.qwenpaw/.qwenpaw
             export QWENPAW_AUTH_ENABLED=true
+            export QWENPAW_LOG_LEVEL=info
             export PATH=/var/apps/nodejs_v24/target/bin:\$PATH
             source ${VENV_DIR}/bin/activate
             python3 -m qwenpaw app --host 0.0.0.0 --port 19091 >> ${LOG_FILE} 2>&1 &

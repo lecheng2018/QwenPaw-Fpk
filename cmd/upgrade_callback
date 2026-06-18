@@ -25,13 +25,13 @@ if [ -f "${PID_FILE}" ]; then
     log_msg "正在停止 QwenPaw 进程..."
     pid=$(head -n 1 "${PID_FILE}" | tr -d '[:space:]')
     if kill -0 "${pid}" 2>/dev/null; then
-        kill -TERM "${pid}"
+        kill -TERM "${pid}" 2>/dev/null || true
         count=0
         while kill -0 "${pid}" 2>/dev/null && [ $count -lt 10 ]; do
             sleep 1
             count=$((count + 1))
         done
-        kill -KILL "${pid}" 2>/dev/null
+        kill -KILL "${pid}" 2>/dev/null || true
     fi
     rm -f "${PID_FILE}"
 fi
@@ -55,15 +55,15 @@ elif [ "$PYPI_MIRROR" = "ustc" ]; then
     PIP_OPTS="-i https://pypi.mirrors.ustc.edu.cn/simple/"
 fi
 
-cd "${CODE_DIR}"
+cd "${CODE_DIR}" || exit 1
 
 log_msg "正在安装 QwenPaw (源码模式)..."
 PIP_LOG=$(mktemp)
 if ! pip3 install -e . $PIP_OPTS > "${PIP_LOG}" 2>&1; then
     cat "${PIP_LOG}" >> "${LOG_FILE}"
-    ERROR_MSG=$(tail -n 1 "${PIP_LOG}")
     rm -f "${PIP_LOG}"
-    handle_error
+    log_msg "QwenPaw 升级失败！"
+    exit 1
 fi
 cat "${PIP_LOG}" >> "${LOG_FILE}"
 rm -f "${PIP_LOG}"
@@ -72,6 +72,8 @@ chown -R "${TRIM_USERNAME}:${TRIM_GROUPNAME}" "${WORKING_DIR}"
 chown -R "${TRIM_USERNAME}:${TRIM_GROUPNAME}" "${TRIM_PKGVAR}"
 chown -R "${TRIM_USERNAME}:${TRIM_GROUPNAME}" "${TRIM_PKGETC}"
 chmod -R 755 "${WORKING_DIR}"
+chmod -R 755 "${TRIM_PKGVAR}"
+chmod -R 755 "${TRIM_PKGETC}"
 
 log_msg "QwenPaw 升级成功！"
 exit 0

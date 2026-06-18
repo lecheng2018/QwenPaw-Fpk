@@ -57,15 +57,15 @@ log_msg "正在升级虚拟环境 pip..."
 python3 -m pip install --upgrade pip $PIP_OPTS
 log_msg "虚拟环境 pip 升级成功"
 
-cd "${CODE_DIR}"
+cd "${CODE_DIR}" || exit 1
 
 log_msg "正在安装 QwenPaw (源码模式)..."
 PIP_LOG=$(mktemp)
 if ! pip3 install -e . $PIP_OPTS > "${PIP_LOG}" 2>&1; then
     cat "${PIP_LOG}" >> "${LOG_FILE}"
-    ERROR_MSG=$(tail -n 1 "${PIP_LOG}")
     rm -f "${PIP_LOG}"
-    handle_error
+    log_msg "QwenPaw 安装失败！"
+    exit 1
 fi
 cat "${PIP_LOG}" >> "${LOG_FILE}"
 rm -f "${PIP_LOG}"
