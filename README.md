@@ -1,6 +1,6 @@
 # QwenPaw for fnOS — yaozy 二次打包版
 
-[![Version](https://img.shields.io/badge/version-1.1.12.1-blue)](https://github.com/yaozy2020/QwenPaw/releases)
+[![Version](https://img.shields.io/badge/version-1.1.12.2-blue)](https://github.com/yaozy2020/QwenPaw/releases)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 [![fnOS](https://img.shields.io/badge/fnOS-%E2%89%A5%200.9.21-orange)](https://www.fnnas.com/)
 
@@ -119,6 +119,14 @@ fnpack build -d .
 - 不要手动 `tar czf`，必须用 `fnpack build`
 
 ## 版本历史
+
+### v1.1.12.2
+
+- 彻底移除 Cloudflare Tunnel 后端代码（`tunnel/` 目录 3 文件）
+- 移除 Voice Channel (Twilio) 后端代码（`app/channels/voice/` 6 文件 + `app/routers/voice.py`）
+- 清理所有共享文件中的 voice/tunnel 引用（registry、schema、config、cli 等 8 个文件）
+- 清理相关测试文件（unit/integration/contract 共 5 文件）
+- Python 语法验证全部通过，其他 channel 功能不受影响
 
 ### v1.1.12.1
 
