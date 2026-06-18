@@ -1,6 +1,6 @@
 # QwenPaw for fnOS — yaozy 二次打包版
 
-[![Version](https://img.shields.io/badge/version-1.1.12-blue)](https://github.com/yaozy2020/QwenPaw/releases)
+[![Version](https://img.shields.io/badge/version-1.1.12.1-blue)](https://github.com/yaozy2020/QwenPaw/releases)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 [![fnOS](https://img.shields.io/badge/fnOS-%E2%89%A5%200.9.21-orange)](https://www.fnnas.com/)
 
@@ -16,6 +16,23 @@
 ## 与原项目的差异
 
 相对于 [naspk-com/QwenPaw](https://github.com/naspk-com/QwenPaw) v1.1.11，本仓库的修改：
+
+### v1.1.12 → v1.1.12.1 变更
+
+| # | 文件 | 改动 | 类型 |
+|:--|:-----|:-----|:-----|
+| B1 | `cmd/config_callback` | `QWENPAAW_LOG_LEVEL` → `QWENPAW_LOG_LEVEL`（环境变量名 typo） | Bug 修复 |
+| B2 | `cmd/install_callback` | `handle_error`（未定义函数）→ `exit 1` + `log_msg`，删除 `ERROR_MSG` | Bug 修复 |
+| B2 | `cmd/upgrade_callback` | 同上 | Bug 修复 |
+| S1 | `cmd/upgrade_callback` | `kill -TERM` / `kill -KILL` 补 `2>/dev/null \|\| true` | 规范 |
+| S2 | `cmd/install_callback` `cmd/upgrade_callback` | `cd "${CODE_DIR}"` 补 `\|\| exit 1` | 规范 |
+| S3 | `cmd/upgrade_callback` | 补 `chmod -R 755 "${TRIM_PKGVAR}"` 和 `"${TRIM_PKGETC}"` | 规范 |
+| S4 | `app/ui/api.cgi` | 三处启动命令补 `QWENPAW_LOG_LEVEL=info` | 规范 |
+| S5 | `cmd/install_init` | 末尾补换行 | 规范 |
+| S6 | `app/www/` | 删除 5 个无关图片（bilibili/donate/douyin/wechat），favicon 替换为 QwenPaw 图标 | 清理 |
+| S7 | `build/` | 从 git 移除 + `.gitignore` 加 `build/` | 清理 |
+
+### v1.1.11 → v1.1.12 变更
 
 | 项 | 改动 |
 |:---|:---|
@@ -103,7 +120,17 @@ fnpack build -d .
 
 ## 版本历史
 
-### v1.1.12（本版本）
+### v1.1.12.1
+
+- 修复 `config_callback` 中环境变量名 typo（`QWENPAAW_LOG_LEVEL` → `QWENPAW_LOG_LEVEL`）
+- 修复 `install_callback` / `upgrade_callback` 中调用未定义函数 `handle_error` 导致 pip 安装失败时脚本不退出、误报成功
+- `upgrade_callback` 的 `kill` 命令补 `|| true`，防止进程已退出时返回非零
+- `upgrade_callback` 补齐 `chmod TRIM_PKGVAR` / `chmod TRIM_PKGETC`
+- `api.cgi` 三处启动命令补 `QWENPAW_LOG_LEVEL=info`
+- 删除 `app/www/` 中 5 个无关图片，favicon 替换为 QwenPaw 图标
+- `build/` 产物从 git 移除，`.gitignore` 补 `build/`
+
+### v1.1.12
 
 - 同步上游官方 v1.1.12（前端从 Vue 改为 React，源码在 `app/qwenpaw/code/console/`）
 - 移除 Cloudflare Tunnel 一键穿透功能（控制台导航入口）
