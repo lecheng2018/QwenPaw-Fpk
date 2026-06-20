@@ -1,4 +1,7 @@
 .DS_Store
 *.fpk
+*.fpk.sha256
 */node_modules
 build/
+ui-fndesign/dist/
+ui-fndesign/.turbo/
