@@ -146,6 +146,18 @@ fnpack build -d .
 - 修复控制台白屏（base path 必须指向 CGI 代理路径）
 - 发布者改为 yaozy
 
+### v1.1.12.5
+
+- 同步上游官方 v1.1.12.post1 全量源码（`src/` + `plugins/` + `setup.py` + `pyproject.toml`）
+- 工程化：引入 Hermes 风格 6 步 `build.sh`（sync-version → gen-audit → preflight → 前端构建 → staging 瘦身 → fnpack）
+- 工程化：新增 `scripts/sync-version.py`、`scripts/gen-audit.py`、`scripts/preflight.sh`
+- 工程化：GitHub Actions CI（PR 触发验证）+ Release workflow（tag push 自动打包发布）
+- 安全：`api.cgi` 新增 `_check_write_permission`，POST 写操作校验 Origin / Referer / 客户端 IP，防止 curl 绕过 fnOS 网关直接调用
+- 安全：`index.cgi` 用 `readlink -f` + `startswith(BASE_PATH)` 替换原 `grep '\.\.'`，防止 URL 编码（`%2e%2e`）绕过 path traversal
+- 修复：`upgrade_callback` 升级完成后自动调用 `main stop/start` 重启主服务，无需手动启停
+- 版本分离：`manifest` = fpk 打包版本，`__version__.py` = QwenPaw 应用本体版本（`1.1.12.post1`）
+- 瘦身：fpk 从 ~190M 降至 15M，仅打包运行时必需文件（`src/` + `plugins/` + 控制台静态产物）
+
 ## 相关链接
 
 | 项目 | 地址 |
