@@ -133,10 +133,10 @@ tar -cf - -C "$PROJ_DIR" \
   --exclude='*.sha256' \
   . | tar -xf - -C "$STAGE"
 
-# 手动复制精简后的 Python 源码（fnpack 识别路径：app/qwenpaw/code/）
+# 手动复制精简后的 Python 源码（fnpack 识别路径：app/qwenpaw/code/src/qwenpaw/）
 echo "  瘦身 Python 源码（fnpack 兼容路径）..."
-mkdir -p "$STAGE/app/qwenpaw/code"
-cp -a "$PROJ_DIR/src/qwenpaw" "$STAGE/app/qwenpaw/code/"
+mkdir -p "$STAGE/app/qwenpaw/code/src"
+cp -a "$PROJ_DIR/src/qwenpaw" "$STAGE/app/qwenpaw/code/src/"
 cp -a "$PROJ_DIR/plugins" "$STAGE/app/qwenpaw/code/"
 # 保留 LICENSE 和上游 setup 必需的最小文件（pip install -e 需要 pyproject.toml/setup.py）
 [ -f "$PROJ_DIR/pyproject.toml" ] && cp "$PROJ_DIR/pyproject.toml" "$STAGE/app/qwenpaw/code/"
