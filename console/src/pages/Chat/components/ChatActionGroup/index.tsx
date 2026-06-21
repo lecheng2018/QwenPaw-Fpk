@@ -13,10 +13,9 @@ import {
 import { useChatAnywhereSessions } from "@agentscope-ai/chat";
 import { useTranslation } from "react-i18next";
 import { Dropdown, Flex, Tooltip } from "antd";
-import ChatSessionDrawer from "../ChatSessionDrawer";
+import type { MenuProps } from "antd";
 import ChatSearchPanel from "../ChatSearchPanel";
 import PlanPanel from "../../../../components/PlanPanel";
-import styles from "./index.module.less";
 
 const PlanIcon = () => (
   <svg
@@ -34,74 +33,29 @@ const PlanIcon = () => (
   </svg>
 );
 
-const PINNED_STORAGE_KEY = "qwenpaw_history_drawer_pinned";
-
-// Below this *available header width*, collapse non-essential actions into
-// a "more" dropdown. Empirically tuned for Chat header on mobile screens.
-const COMPACT_BREAKPOINT_PX = 480;
+// Below this *available header width*, collapse secondary actions (Plan,
+// History, WideMode) into a "more" dropdown so the essential New/Search
+// buttons stay visible on mobile.
+const COMPACT_BREAKPOINT_PX = 700;
 
 interface ChatActionGroupProps {
   planEnabled?: boolean;
+  /** Callback to toggle the right-side history panel */
+  onToggleHistory?: () => void;
+  /** Whether the history panel is currently visible */
+  historyOpen?: boolean;
   isWideMode?: boolean;
   onToggleWideMode?: () => void;
-  /**
-   * Optional external controller for the chat history drawer.
-   * When provided, callers can drive the drawer from outside (e.g. from a
-   * pinned full-mode panel host). When not provided, the component falls
-   * back to its internal state.
-   */
-  onToggleHistory?: () => void;
-  historyOpen?: boolean;
 }
 
 const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
   planEnabled = false,
+  onToggleHistory,
+  historyOpen = false,
   isWideMode = false,
   onToggleWideMode,
-  onToggleHistory,
-  historyOpen: historyOpenProp,
 }) => {
   const { t } = useTranslation();
-
-  const [historyPinned, setHistoryPinned] = useState(() => {
-    try {
-      return localStorage.getItem(PINNED_STORAGE_KEY) === "true";
-    } catch {
-      return false;
-    }
-  });
-
-  // If pinned, auto-open drawer on mount. Otherwise honour the external
-  // `historyOpen` prop when the parent provides one.
-  const [historyOpenInternal, setHistoryOpenInternal] = useState(
-    historyOpenProp ?? historyPinned,
-  );
-  const isHistoryControlled = historyOpenProp !== undefined;
-  const historyOpen = isHistoryControlled
-    ? historyOpenProp
-    : historyOpenInternal;
-  const setHistoryOpen = (open: boolean) => {
-    if (isHistoryControlled) {
-      // Parent drives the open state; if it also wants notifications when
-      // we'd toggle, surface it via onToggleHistory below.
-      if (open !== historyOpenProp) onToggleHistory?.();
-    } else {
-      setHistoryOpenInternal(open);
-    }
-  };
-
-  const handlePinChange = (pinned: boolean) => {
-    setHistoryPinned(pinned);
-    try {
-      if (pinned) {
-        localStorage.setItem(PINNED_STORAGE_KEY, "true");
-      } else {
-        localStorage.removeItem(PINNED_STORAGE_KEY);
-      }
-    } catch {
-      // storage full or unavailable
-    }
-  };
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
@@ -127,59 +81,51 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
     if (typeof ResizeObserver !== "undefined" && headerEl) {
       observer = new ResizeObserver(() => computeCompact());
       observer.observe(headerEl);
+    } else if (typeof window !== "undefined") {
+      window.addEventListener("resize", computeCompact);
     }
 
-    window.addEventListener("resize", computeCompact);
     return () => {
       observer?.disconnect();
-      window.removeEventListener("resize", computeCompact);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", computeCompact);
+      }
     };
   }, []);
 
-  const wideModeTooltip = isWideMode
-    ? t("chat.normalModeTooltip")
-    : t("chat.wideModeTooltip");
-
-  // Items moved into the "more" dropdown when compact.
-  const moreMenuItems = [
-    planEnabled
-      ? {
-          key: "plan",
-          label: t("plan.title", "Plan"),
-          icon: <PlanIcon />,
-          onClick: () => setPlanOpen(true),
-        }
-      : null,
-    {
+  // Build "more" dropdown items for compact mode: Plan, History, WideMode.
+  const moreItems: MenuProps["items"] = [];
+  if (planEnabled) {
+    moreItems.push({
+      key: "plan",
+      icon: <PlanIcon />,
+      label: t("plan.title", "Plan"),
+      onClick: () => setPlanOpen(true),
+    });
+  }
+  if (onToggleHistory) {
+    moreItems.push({
       key: "history",
+      icon: <SparkHistoryLine />,
       label: t("chat.chatHistoryTooltip"),
-      icon: <SparkHistoryLine size={16} />,
-      onClick: () => setHistoryOpen(true),
-    },
-    onToggleWideMode
-      ? {
-          key: "wideMode",
-          label: wideModeTooltip,
-          icon: isWideMode ? <CompressOutlined /> : <ExpandAltOutlined />,
-          onClick: onToggleWideMode,
-        }
-      : null,
-  ].filter(Boolean) as {
-    key: string;
-    label: string;
-    icon: React.ReactNode;
-    onClick: () => void;
-  }[];
+      onClick: () => onToggleHistory(),
+    });
+  }
+  if (onToggleWideMode) {
+    moreItems.push({
+      key: "wideMode",
+      icon: isWideMode ? <CompressOutlined /> : <ExpandAltOutlined />,
+      label: isWideMode
+        ? t("chat.normalModeTooltip")
+        : t("chat.wideModeTooltip"),
+      onClick: () => onToggleWideMode(),
+    });
+  }
 
   return (
-    <Flex
-      ref={groupRef}
-      gap={isCompact ? 4 : 8}
-      align="center"
-      className={styles.chatActionGroup}
-    >
-      {/* Plan button: shown inline only when not compact */}
-      {planEnabled && !isCompact && (
+    <Flex gap={8} align="center" ref={groupRef}>
+      {/* Plan icon: only render inline when NOT compact */}
+      {!isCompact && planEnabled && (
         <Tooltip title={t("plan.title", "Plan")} mouseEnterDelay={0.5}>
           <IconButton
             bordered={false}
@@ -188,7 +134,8 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
           />
         </Tooltip>
       )}
-      {/* Always visible: New Chat */}
+
+      {/* Essential actions always visible */}
       <Tooltip title={t("chat.newChatTooltip")} mouseEnterDelay={0.5}>
         <IconButton
           bordered={false}
@@ -196,7 +143,6 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
           onClick={() => createSession()}
         />
       </Tooltip>
-      {/* Always visible: Search */}
       <Tooltip title={t("chat.searchTooltip")} mouseEnterDelay={0.5}>
         <IconButton
           bordered={false}
@@ -204,19 +150,29 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
           onClick={() => setSearchOpen(true)}
         />
       </Tooltip>
-      {/* History: shown inline only when not compact */}
-      {!isCompact && (
+
+      {/* History + WideMode: inline when NOT compact */}
+      {!isCompact && onToggleHistory && (
         <Tooltip title={t("chat.chatHistoryTooltip")} mouseEnterDelay={0.5}>
           <IconButton
             bordered={false}
             icon={<SparkHistoryLine />}
-            onClick={() => setHistoryOpen(true)}
+            style={
+              historyOpen
+                ? { color: "var(--color-primary, #ff9d4d)" }
+                : undefined
+            }
+            onClick={onToggleHistory}
           />
         </Tooltip>
       )}
-      {/* Wide mode: shown inline only when not compact */}
-      {onToggleWideMode && !isCompact && (
-        <Tooltip title={wideModeTooltip} mouseEnterDelay={0.5}>
+      {!isCompact && onToggleWideMode && (
+        <Tooltip
+          title={
+            isWideMode ? t("chat.normalModeTooltip") : t("chat.wideModeTooltip")
+          }
+          mouseEnterDelay={0.5}
+        >
           <IconButton
             bordered={false}
             icon={isWideMode ? <CompressOutlined /> : <ExpandAltOutlined />}
@@ -224,26 +180,18 @@ const ChatActionGroup: React.FC<ChatActionGroupProps> = ({
           />
         </Tooltip>
       )}
-      {/* Compact mode: collect remaining actions in a "more" dropdown */}
-      {isCompact && moreMenuItems.length > 0 && (
+
+      {/* Compact mode: collapse Plan/History/WideMode into more dropdown */}
+      {isCompact && moreItems.length > 0 && (
         <Dropdown
-          menu={{ items: moreMenuItems }}
-          placement="bottomRight"
+          menu={{ items: moreItems }}
           trigger={["click"]}
+          placement="bottomRight"
         >
-          <span className={styles.moreAction}>
-            <Tooltip title={t("common.more", "More")} mouseEnterDelay={0.5}>
-              <IconButton bordered={false} icon={<MoreOutlined />} />
-            </Tooltip>
-          </span>
+          <IconButton bordered={false} icon={<MoreOutlined />} />
         </Dropdown>
       )}
-      <ChatSessionDrawer
-        open={historyOpen}
-        onClose={() => setHistoryOpen(false)}
-        pinned={historyPinned}
-        onPinChange={handlePinChange}
-      />
+
       <ChatSearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
       {planEnabled && (
         <PlanPanel open={planOpen} onClose={() => setPlanOpen(false)} />
