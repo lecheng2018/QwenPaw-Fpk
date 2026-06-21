@@ -50,10 +50,11 @@ else
   export VITE_BASE_PATH="${VITE_BASE_PATH:-/cgi/ThirdParty/com.dustinky.qwenpaw/index.cgi/}"
   echo "  VITE_BASE_PATH=$VITE_BASE_PATH"
 
-  if command -v bun >/dev/null 2>&1; then
+  if [ -x "$HOME/.bun/bin/bun" ]; then
     echo "  使用 Bun 工具链"
-    bun install --ignore-scripts
-    bun run build
+    "$HOME/.bun/bin/bun" install --ignore-scripts
+    # workaround: bun run build 在某些环境下报 CouldntReadCurrentDirectory
+    "$HOME/.bun/bin/bun" ./node_modules/vite/bin/vite.js build
   elif command -v pnpm >/dev/null 2>&1; then
     echo -e "${YELLOW}  未找到 bun，回退到 pnpm${NC}"
     pnpm install --frozen-lockfile --ignore-scripts || pnpm install --ignore-scripts
