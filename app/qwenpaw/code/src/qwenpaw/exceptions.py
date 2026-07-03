@@ -18,6 +18,14 @@ from agentscope_runtime.engine.schemas.exception import (
 # ==================== QwenPaw Business Exceptions ====================
 
 
+class RateLimitExceededException(AgentRuntimeErrorException):
+    """Local rate limiter (semaphore/token bucket) timed out.
+
+    Distinct from :class:`ModelQuotaExceededException`, which represents a
+    429 from the provider.
+    """
+
+
 class ProviderError(AgentRuntimeErrorException):
     """Exception raised when there's an error with a model provider."""
 
