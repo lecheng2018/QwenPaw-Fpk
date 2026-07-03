@@ -25,7 +25,6 @@ import api from "@/api";
 import type { ProviderInfo } from "../../../api/types/provider";
 import type { AgentsLLMRoutingConfig } from "../../../api/types";
 import {
-  countConfiguredProviders,
   getIsConfigured,
   groupProviders,
 } from "./utils";

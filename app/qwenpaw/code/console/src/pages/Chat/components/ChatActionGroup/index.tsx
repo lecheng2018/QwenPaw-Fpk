@@ -6,13 +6,11 @@ import {
   SparkSearchLine,
 } from "@agentscope-ai/icons";
 import { ExpandAltOutlined, CompressOutlined } from "@ant-design/icons";
-import { useChatAnywhereSessions } from "@agentscope-ai/chat";
 import { useTranslation } from "react-i18next";
 import { Flex, Tooltip } from "antd";
 import ChatSearchPanel from "../ChatSearchPanel";
 import PlanPanel from "../../../../components/PlanPanel";
 import { useCreateNewSession } from "../../hooks/useCreateNewSession";
-import styles from "./index.module.less";
 
 const PlanIcon = () => (
   <svg
