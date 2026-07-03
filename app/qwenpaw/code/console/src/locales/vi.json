@@ -609,7 +609,11 @@
   "preview": {
     "error": {
       "SENSITIVE_FILE_BLOCKED": "File bị chặn bởi File Guard (bảo vệ file nhạy cảm).",
-      "OUTSIDE_WORKSPACE": "File nằm ngoài phạm vi workspace.",
+      "OUTSIDE_WORKSPACE": "File nằm ngoài phạm vi workspace. Bật \"Cho phép xem trước ngoài Workspace\" trong Cài đặt → Bảo mật → File Guard.",
+      "FORBIDDEN": "Truy cập bị từ chối: không đủ quyền để xem trước file này.",
+      "NOT_FOUND": "Không tìm thấy file, có thể đã bị di chuyển hoặc xóa. Nếu đang dùng đường dẫn tương đối, hãy thử dùng đường dẫn tuyệt đối.",
+      "LOAD_FAILED": "Không thể tải xem trước file.",
+      "LOAD_FAILED_DETAIL": "Không thể tải xem trước file: {{detail}}",
       "UNKNOWN": "Không thể xem trước file này."
     }
   },
@@ -854,7 +858,17 @@
     "filterFreeOnly": "Chỉ mô hình miễn phí:",
     "selectAllProviders": "Chọn tất cả",
     "clearProviderSelection": "Bỏ chọn tất cả",
-    "noMatchingProviders": "Không có nhà cung cấp phù hợp"
+    "noMatchingProviders": "Không có nhà cung cấp phù hợp",
+    "moveUp": "Move Up",
+    "moveDown": "Move Down",
+    "reorder": "Reorder",
+    "done": "Done",
+    "resetOrder": "Reset",
+    "resetOrderTooltip": "Reset model order alphabetically",
+    "modelOrderSaved": "Model order saved",
+    "modelOrderSaveFailed": "Failed to save model order",
+    "modelOrderRestored": "Order restored",
+    "undo": "Undo"
   },
   "security": {
     "parent": "Cài đặt",

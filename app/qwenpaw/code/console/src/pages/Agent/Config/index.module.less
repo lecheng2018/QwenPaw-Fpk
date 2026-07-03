@@ -142,6 +142,47 @@
   margin-bottom: 0 !important;
 }
 
+.llmFallbackList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.llmFallbackRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.llmFallbackField {
+  margin-bottom: 0 !important;
+}
+
+.llmFallbackActions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.llmFallbackHint {
+  margin-top: 12px;
+  color: #888;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .llmFallbackRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .llmFallbackActions {
+    justify-content: flex-end;
+  }
+}
+
 /* Slider overrides - remove theme color */
 :global {
   .ant-slider-rail {
@@ -256,6 +297,69 @@
 
     :global(.qwenpaw-tabs-ink-bar) {
       background: #ff7f16 !important;
+    }
+  }
+}
+
+/* ─── Mobile responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: 12px 16px;
+  }
+
+  .breadcrumbCurrent {
+    font-size: 16px;
+  }
+
+  .tabContent {
+    padding: 0 12px;
+  }
+
+  .reactAgentRow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .reactAgentField {
+    margin-bottom: 12px !important;
+  }
+
+  .llmRetryRow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .llmRetryField {
+    margin-bottom: 12px !important;
+  }
+
+  .formCard {
+    margin-bottom: 16px;
+  }
+
+  .footerActions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+    justify-content: center;
+  }
+
+  .footerActions :global(.ant-btn) {
+    flex: 1;
+    min-width: 120px;
+    max-width: 200px;
+  }
+
+  .mainTabs {
+    :global(.qwenpaw-tabs-nav) {
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    :global(.qwenpaw-tabs-nav-list) {
+      display: inline-flex;
+      white-space: nowrap;
     }
   }
 }

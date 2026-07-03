@@ -25,6 +25,7 @@ tests/
     ├── test_onebot_channel.py  # OneBotChannel unit tests (53 tests)
     ├── test_qq.py              # QQChannel unit tests (116 tests)
     ├── test_telegram.py        # TelegramChannel unit tests (93 tests)
+    ├── test_voice.py           # VoiceChannel unit tests (37 tests)
     ├── test_wecom.py           # WecomChannel unit tests (69 tests)
     ├── test_wechat.py          # WeChatChannel unit tests (78 tests)
     └── test_xiaoyi.py          # XiaoyiChannel unit tests (57 tests)
@@ -59,7 +60,9 @@ Both test types are required to pass in CI.
 | OneBot | 53 | 756 | Medium | ✅ Complete |
 | MQTT | 50 | 922 | Medium | ✅ Complete |
 | IMessage | 37 | 1,007 | Simple-Medium | ✅ Complete |
-**Total: 1,200+ unit tests across 15 test files**
+| Voice | 37 | 651 | Simple | ✅ Complete |
+
+**Total: 1,200+ unit tests across 16 test files**
 
 ## Local Development
 
@@ -182,7 +185,7 @@ Layer 4: Signature Compatibility Check
    ConsoleChannel, DingTalkChannel, FeishuChannel,
    DiscordChannel, IMessageChannel, MQTTChannel,
    MatrixChannel, MattermostChannel, QQChannel,
-   TelegramChannel
+   TelegramChannel, VoiceChannel
 
 🎉 Zero missing tests - both contract and unit tests complete!
 ```

@@ -6,6 +6,7 @@ import {
   ReactAgentCard,
   LlmRetryCard,
   LlmRateLimiterCard,
+  LlmFallbackCard,
   ToolExecutionLevelCard,
 } from "./components";
 import { PageHeader } from "@/components/PageHeader";
@@ -14,6 +15,7 @@ import {
   MEMORY_MANAGER_BACKEND_MAPPINGS,
 } from "@/constants/backendMappings";
 import api from "@/api";
+import { getProviderModels } from "@/api/types/provider";
 import styles from "./index.module.less";
 
 function AgentConfigPage() {
@@ -50,7 +52,7 @@ function AgentConfigPage() {
         if (info.active_llm) {
           return api.listProviders().then((providers) => {
             for (const p of providers) {
-              const all = [...(p.models ?? []), ...(p.extra_models ?? [])];
+              const all = getProviderModels(p);
               const m = all.find((m) => m.id === info.active_llm?.model);
               if (m?.max_input_length) {
                 setMaxInputLength(m.max_input_length);
@@ -108,6 +110,19 @@ function AgentConfigPage() {
         children: (
           <div className={styles.tabContent}>
             <LlmRateLimiterCard />
+          </div>
+        ),
+      },
+      {
+        key: "llmFallback",
+        label: (
+          <span className={styles.tabLabel}>
+            {t("agentConfig.llmFallbackTitle")}
+          </span>
+        ),
+        children: (
+          <div className={styles.tabContent}>
+            <LlmFallbackCard />
           </div>
         ),
       },

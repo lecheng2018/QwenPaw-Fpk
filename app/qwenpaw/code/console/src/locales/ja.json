@@ -1299,7 +1299,17 @@
     "selectAllProviders": "すべて選択",
     "clearProviderSelection": "すべて解除",
     "noMatchingProviders": "一致するプロバイダーがありません",
-    "filterFreeOnly": "無料モデルのみ"
+    "filterFreeOnly": "無料モデルのみ",
+    "moveUp": "Move Up",
+    "moveDown": "Move Down",
+    "reorder": "Reorder",
+    "done": "Done",
+    "resetOrder": "Reset",
+    "resetOrderTooltip": "Reset model order alphabetically",
+    "modelOrderSaved": "Model order saved",
+    "modelOrderSaveFailed": "Failed to save model order",
+    "modelOrderRestored": "Order restored",
+    "undo": "Undo"
   },
   "agentConfig": {
     "title": "設定",
@@ -2409,7 +2419,7 @@
       "SENSITIVE_FILE_BLOCKED": "このファイルはファイルガードによりブロックされています（機密ファイル保護）。",
       "OUTSIDE_WORKSPACE": "このファイルはワークスペースの範囲外です。設定 → セキュリティ → ファイルガード で「コンソールでワークスペース外ファイルのプレビューを許可」を有効にしてください。",
       "FORBIDDEN": "アクセス拒否：このファイルをプレビューする権限がありません。",
-      "NOT_FOUND": "ファイルが見つかりません。移動または削除された可能性があります。",
+      "NOT_FOUND": "ファイルが見つかりません。移動または削除された可能性があります。相対パスを使用している場合は、絶対パスをお試しください。",
       "LOAD_FAILED": "ファイルプレビューの読み込みに失敗しました。",
       "LOAD_FAILED_DETAIL": "ファイルプレビューの読み込みに失敗しました: {{detail}}"
     }

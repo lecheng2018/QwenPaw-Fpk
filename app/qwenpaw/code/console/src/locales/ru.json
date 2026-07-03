@@ -1314,7 +1314,17 @@
     "modalityFile": "Файл",
     "modalityText": "Только текст",
     "perMillionIn": "/1M вх.",
-    "perMillionOut": "/1M исх."
+    "perMillionOut": "/1M исх.",
+    "moveUp": "Move Up",
+    "moveDown": "Move Down",
+    "reorder": "Reorder",
+    "done": "Done",
+    "resetOrder": "Reset",
+    "resetOrderTooltip": "Reset model order alphabetically",
+    "modelOrderSaved": "Model order saved",
+    "modelOrderSaveFailed": "Failed to save model order",
+    "modelOrderRestored": "Order restored",
+    "undo": "Undo"
   },
   "agentConfig": {
     "title": "Конфигурация",
@@ -2424,7 +2434,7 @@
       "SENSITIVE_FILE_BLOCKED": "Этот файл заблокирован защитой файлов (защита конфиденциальных файлов).",
       "OUTSIDE_WORKSPACE": "Этот файл находится за пределами рабочего пространства. Включите «Разрешить предпросмотр файлов вне рабочего пространства» в Настройки → Безопасность → Защита файлов.",
       "FORBIDDEN": "Доступ запрещён: недостаточно прав для предпросмотра этого файла.",
-      "NOT_FOUND": "Файл не найден. Возможно, он был перемещён или удалён.",
+      "NOT_FOUND": "Файл не найден. Возможно, он был перемещён или удалён. Если использован относительный путь, попробуйте абсолютный.",
       "LOAD_FAILED": "Не удалось загрузить предпросмотр файла.",
       "LOAD_FAILED_DETAIL": "Не удалось загрузить предпросмотр файла: {{detail}}"
     }

@@ -14,6 +14,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { providerApi } from "../../../api/modules/provider";
 import type { ProviderInfo, ActiveModelsInfo } from "../../../api/types";
+import { getProviderModels } from "../../../api/types/provider";
 import { useAgentStore } from "../../../stores/agentStore";
 import { confirmFreeModelSwitch } from "@/utils/freeModelSwitchWarning";
 import { ProviderIcon } from "../../Settings/Models/components/ProviderIconComponent";
@@ -147,7 +148,7 @@ export default function ModelSelector() {
       id: p.id,
       name: p.name,
       base_url: p.base_url,
-      models: [...(p.models ?? []), ...(p.extra_models ?? [])],
+      models: getProviderModels(p),
       is_free_tier: p.is_free_tier,
       is_custom: p.is_custom,
       is_local: p.is_local,
@@ -305,7 +306,11 @@ export default function ModelSelector() {
       setActiveModels({
         active_llm: { provider_id: providerId, model: modelId },
       });
-      window.dispatchEvent(new CustomEvent("model-switched"));
+      window.dispatchEvent(
+        new CustomEvent("model-switched", {
+          detail: { maxInputLength: targetModel?.max_input_length },
+        }),
+      );
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : t("modelSelector.switchFailed");
@@ -335,7 +340,17 @@ export default function ModelSelector() {
             model: oauthModal.pendingModelId,
           },
         });
-        window.dispatchEvent(new CustomEvent("model-switched"));
+        const oauthProvider = eligibleProviders.find(
+          (p) => p.id === oauthModal.providerId,
+        );
+        const oauthModel = oauthProvider?.models.find(
+          (m) => m.id === oauthModal.pendingModelId,
+        );
+        window.dispatchEvent(
+          new CustomEvent("model-switched", {
+            detail: { maxInputLength: oauthModel?.max_input_length },
+          }),
+        );
       } catch (err) {
         const msg =
           err instanceof Error ? err.message : t("modelSelector.switchFailed");
@@ -684,7 +699,9 @@ export default function ModelSelector() {
       <Dropdown
         open={open}
         onOpenChange={handleOpenChange}
-        popupRender={() => dropdownContent}
+        popupRender={() => (
+          <div style={{ transform: "translateY(0)" }}>{dropdownContent}</div>
+        )}
         trigger={["click"]}
         placement="bottomLeft"
       >
