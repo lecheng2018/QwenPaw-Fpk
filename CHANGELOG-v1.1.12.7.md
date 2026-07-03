@@ -4,7 +4,7 @@
 **基础版本:** 上游 QwenPaw v1.1.12.post2  
 **Fpk 版本:** 1.1.12.7 (Python: 1.1.12.post3)  
 **FPK 产物:** build/com.dustinky.qwenpaw_v1.1.12.7.fpk (15MB)  
-**SHA256:** 7195725d9a0c4ae5acb6aedad06aab81341f499a3891018e51db1c8c79d19b43
+**SHA256:** 46946885bcd5e0243d8ecbff033a26bd57693c9fccbe75414b013fbdd635ea49
 
 ---
 
